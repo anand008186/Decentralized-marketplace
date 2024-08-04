@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  address   String   @unique
+  tasks    Task[]
+
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  title     String
+  amount    String
+  signature String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  options   Options[]
+  submission submission[]
+}
+
+model Participant {
+  id          Int      @id @default(autoincrement())
+  address     String   @unique
+  submissions submission[]
+  Balance Balance?
+}
+
+model Balance {
+  id            Int        @id @default(autoincrement())
+  amount        String
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId Int         @unique
+}
+
+model Options {
+  id        Int      @id @default(autoincrement())
+  image_url String
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  submission submission[]
+  
+}
+
+model submission {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  participantId Int
+  participant Participant @relation(fields: [participantId], references: [id])
+  optionId Int
+  option Options @relation(fields: [optionId], references: [id])
+}
